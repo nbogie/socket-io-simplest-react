@@ -1,3 +1,11 @@
 .App {
   text-align: center;
 }
+
+.Demo {
+  border: 1px solid black;
+  border-radius: 10px;
+  background-color: gainsboro;
+  padding: 20px;
+  margin: 20px;
+}
