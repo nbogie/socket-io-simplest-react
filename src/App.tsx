@@ -17,6 +17,8 @@ function App() {
         <h4>Select a demo</h4>
         <button onClick={() => setChosenDemo("send_only")}>Send Only</button>
         <button onClick={() => setChosenDemo("send_and_receive")}>Send and receive</button>
+        <hr />
+        <a href="https://openprocessing.org/sketch/1530627">Accompanying p5.js sketch: https://openprocessing.org/sketch/1530627</a>
       </footer>
     </div>
   );
