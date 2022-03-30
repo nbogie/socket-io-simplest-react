@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import io, { Socket } from 'socket.io-client';
 
-let socket: Socket;
-
 interface Position {
     x: number;
     y: number;
 }
 export default function DemoSendAndReceive() {
+    const [socket, setSocket] = useState<Socket | null>(null);
+
+    //Maintain received data in state
     const [mousePos, setMousePos] = useState<Position | null>(null);
     const [keyPresses, setKeyPresses] = useState<string[]>([])
 
@@ -21,16 +22,21 @@ export default function DemoSendAndReceive() {
 
     useEffect(() => {
         //Use your OWN sketch id here...
-        //@ts-ignore
-        socket = io.connect('https://openprocessing.org:30000/?sketch=1530627');
+        const newSocket = io('https://openprocessing.org:30000/?sketch=1530627');
+        setSocket(newSocket);
         console.log("connected socket")
-        socket.on("user_joined", (name: string) => { console.log("user joined!", name) });
-        socket.on("mouse_click", handleReceivedMouseClick);
-        socket.on("key_press", handleReceivedKeyPress);
+
+        newSocket.on("user_joined", (name: string) => { console.log("user joined!", name) });
+        newSocket.on("mouse_click", handleReceivedMouseClick);
+        newSocket.on("key_press", handleReceivedKeyPress);
+        console.log("registering interest in some events")
 
         function cleanup() {
-            socket.disconnect();
-            console.log("disconnected socket")
+            newSocket.off("user_joined");
+            newSocket.off("mouse_click");
+            newSocket.off("key_press");
+            newSocket.disconnect();
+            console.log("De-registered listeners and disconnected socket.")
         }
 
         return cleanup;
@@ -38,15 +44,15 @@ export default function DemoSendAndReceive() {
 
 
     function sendRed() {
-        socket.emit("red");
+        if (socket) { socket.emit("red"); }
     }
 
     function sendOrange() {
-        socket.emit("orange");
+        if (socket) { socket.emit("orange"); }
     }
 
     function sendAddEnemy() {
-        socket.emit("add_enemy");
+        if (socket) { socket.emit("add_enemy"); }
     }
 
     return <div className="Demo">
@@ -55,13 +61,12 @@ export default function DemoSendAndReceive() {
         <button onClick={sendOrange}>Send Orange</button>
         <button onClick={sendAddEnemy}>Send 'add_enemy'</button>
 
-        <div>Most recent mouse click position:
-            {mousePos ? <div>(x: {mousePos.x}, y: {mousePos.y})</div> : <div>None yet!</div>}
-        </div>
-        <div>Most recent key presses:
-            <ul>
-                {keyPresses.map((str, ix) => <li key={ix}>{str}</li>)}
-            </ul>
-        </div>
-    </div>
+        <h3>Most recent mouse click position</h3>
+        {mousePos ? <div>(x: {mousePos.x}, y: {mousePos.y})</div> : <div>None yet!</div>}
+        <h3>Most recent key presses</h3>
+        <ul>
+            {keyPresses.map((str, ix) => <li key={ix}>{str}</li>)}...
+        </ul>
+
+    </div >
 }
